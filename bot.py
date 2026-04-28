@@ -30,7 +30,7 @@ channels = {
 }
 
 # 🔴 ASOSIY KANAL (shu eng muhim!)
-SOURCE_CHANNEL = -1001437422385
+SOURCE_CHANNEL = -1003003013714
 
 @dp.channel_post_handler()
 async def repost(message: types.Message):
