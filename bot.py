@@ -1,4 +1,5 @@
 import os
+import asyncio
 from aiogram import Bot, Dispatcher, types
 from aiogram.utils import executor
 
@@ -31,10 +32,13 @@ channels = {
 
 SOURCE_CHANNEL = -1003003013714
 
+# 🔥 group storage
+media_groups = {}
 
-@dp.channel_post_handler()
+@dp.channel_post_handler(content_types=types.ContentTypes.ANY)
 async def repost(message: types.Message):
-    text = (message.text or message.caption or "").lower()
+
+    text = (message.caption or message.text or "").lower()
 
     if message.chat.id != SOURCE_CHANNEL:
         return
@@ -42,29 +46,30 @@ async def repost(message: types.Message):
     for tag, channel_id in channels.items():
         if tag in text:
 
-            # 🔥 АГАР MEDIA GROUP БЎЛСА
+            # 🔥 агар альбом бўлса
             if message.media_group_id:
-                # group ни йиғамиз
-                album = await bot.get_media_group(
-                    chat_id=message.chat.id,
-                    message_id=message.message_id
-                )
 
-                media = []
+                group_id = message.media_group_id
 
-                for item in album:
-                    if item.photo:
-                        media.append(types.InputMediaPhoto(
-                            media=item.photo[-1].file_id,
-                            caption=item.caption if item.caption else None
-                        ))
-                    elif item.video:
-                        media.append(types.InputMediaVideo(
-                            media=item.video.file_id,
-                            caption=item.caption if item.caption else None
-                        ))
+                if group_id not in media_groups:
+                    media_groups[group_id] = []
 
-                await bot.send_media_group(chat_id=channel_id, media=media)
+                media_groups[group_id].append(message)
+
+                # 🔥 ҳамма расм келишини кутиш
+                await asyncio.sleep(1.5)
+
+                # фақат 1 марта юбориш учун
+                if len(media_groups[group_id]) > 0:
+
+                    for msg in media_groups[group_id]:
+                        await bot.copy_message(
+                            chat_id=channel_id,
+                            from_chat_id=msg.chat.id,
+                            message_id=msg.message_id
+                        )
+
+                    media_groups[group_id] = []
 
             else:
                 # оддий пост
