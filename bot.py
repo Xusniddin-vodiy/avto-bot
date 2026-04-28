@@ -2,11 +2,13 @@ import os
 from aiogram import Bot, Dispatcher, types
 from aiogram.utils import executor
 
-API_TOKEN = os.getenv("8668632754:AAEXGwJZB4pVuEdPgjELvJiB1PBlBoc9K98")
+# 🔐 TOKEN (Railway Variables’dan oladi)
+API_TOKEN = os.getenv("BOT_TOKEN")
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
+# 🔥 Kanal mapping
 channels = {
     "#tahoe": -1003904657707,
     "#equinox": -1003539247125,
@@ -29,7 +31,7 @@ channels = {
     "#cobalt": -1001484563003,
 }
 
-# 🔴 ASOSIY KANAL (shu eng muhim!)
+# 🔴 ASOSIY KANAL
 SOURCE_CHANNEL = -1003003013714
 
 @dp.channel_post_handler()
