@@ -2,15 +2,13 @@ import os
 from aiogram import Bot, Dispatcher, types
 from aiogram.utils import executor
 
-# TOKEN Railway Variables'dan олади
 API_TOKEN = os.getenv("BOT_TOKEN")
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
-# 🔥 Каналлар
 channels = {
-    "#tahoe": -1003904657707,
+   "#tahoe": -1003904657707,
     "#equinox": -1003539247125,
     "#malibu": -1003752675712,
     "#onix": -1003973192547,
@@ -31,25 +29,51 @@ channels = {
     "#cobalt": -1001484563003,
 }
 
-# 🔴 АСОСИЙ КАНАЛ (сен пост ташлайдиган)
-SOURCE_CHANNEL = -1003003013714  # ← буни ўзингни канал ID билан алмаштир
+SOURCE_CHANNEL = -1003003013714
+
 
 @dp.channel_post_handler()
 async def repost(message: types.Message):
     text = (message.text or message.caption or "").lower()
 
-    # Фақат асосий каналдан келса ишлайди
     if message.chat.id != SOURCE_CHANNEL:
         return
 
     for tag, channel_id in channels.items():
         if tag in text:
-            await bot.copy_message(
-                chat_id=channel_id,
-                from_chat_id=message.chat.id,
-                message_id=message.message_id
-            )
 
-# 🚀 START
+            # 🔥 АГАР MEDIA GROUP БЎЛСА
+            if message.media_group_id:
+                # group ни йиғамиз
+                album = await bot.get_media_group(
+                    chat_id=message.chat.id,
+                    message_id=message.message_id
+                )
+
+                media = []
+
+                for item in album:
+                    if item.photo:
+                        media.append(types.InputMediaPhoto(
+                            media=item.photo[-1].file_id,
+                            caption=item.caption if item.caption else None
+                        ))
+                    elif item.video:
+                        media.append(types.InputMediaVideo(
+                            media=item.video.file_id,
+                            caption=item.caption if item.caption else None
+                        ))
+
+                await bot.send_media_group(chat_id=channel_id, media=media)
+
+            else:
+                # оддий пост
+                await bot.copy_message(
+                    chat_id=channel_id,
+                    from_chat_id=message.chat.id,
+                    message_id=message.message_id
+                )
+
+
 if __name__ == "__main__":
     executor.start_polling(dp)
