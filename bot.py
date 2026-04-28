@@ -2,13 +2,13 @@ import os
 from aiogram import Bot, Dispatcher, types
 from aiogram.utils import executor
 
-# 🔐 TOKEN (Railway Variables’dan oladi)
+# TOKEN Railway Variables'dan олади
 API_TOKEN = os.getenv("BOT_TOKEN")
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
-# 🔥 Kanal mapping
+# 🔥 Каналлар
 channels = {
     "#tahoe": -1003904657707,
     "#equinox": -1003539247125,
@@ -31,13 +31,14 @@ channels = {
     "#cobalt": -1001484563003,
 }
 
-# 🔴 ASOSIY KANAL
-SOURCE_CHANNEL = -1003003013714
+# 🔴 АСОСИЙ КАНАЛ (сен пост ташлайдиган)
+SOURCE_CHANNEL = -1003003013714  # ← буни ўзингни канал ID билан алмаштир
 
 @dp.channel_post_handler()
 async def repost(message: types.Message):
     text = (message.text or message.caption or "").lower()
 
+    # Фақат асосий каналдан келса ишлайди
     if message.chat.id != SOURCE_CHANNEL:
         return
 
@@ -49,5 +50,6 @@ async def repost(message: types.Message):
                 message_id=message.message_id
             )
 
+# 🚀 START
 if __name__ == "__main__":
     executor.start_polling(dp)
