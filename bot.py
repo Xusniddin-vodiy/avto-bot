@@ -28,15 +28,17 @@ channels = {
     "#fura": -1003993025292,
     "#inomarka": -1003666897042,
     "#cobalt": -1001484563003,
-    "#фаргона": -1002103035302,
-    "#андижон": -1002963143087,
-    "#наманган": -1003032467221,
-    
+}
+
+# 🔥 3 ТА ВИЛОЯТ (КИРИЛ)
+regions = {
+    "фаргона": -1002103035302,
+    "андижон": -1002963143087,
+    "наманган": -1003032467221,
 }
 
 SOURCE_CHANNEL = -1003003013714
 
-# 🔥 group storage
 media_groups = {}
 
 @dp.channel_post_handler(content_types=types.ContentTypes.ANY)
@@ -47,36 +49,58 @@ async def repost(message: types.Message):
     if message.chat.id != SOURCE_CHANNEL:
         return
 
+    # 🔥 1. ТЕГ БЎЙИЧА (эски кодинг)
     for tag, channel_id in channels.items():
         if tag in text:
 
-            # 🔥 агар альбом бўлса
             if message.media_group_id:
-
                 group_id = message.media_group_id
 
                 if group_id not in media_groups:
                     media_groups[group_id] = []
 
                 media_groups[group_id].append(message)
-
-                # 🔥 ҳамма расм келишини кутиш
                 await asyncio.sleep(1.5)
 
-                # фақат 1 марта юбориш учун
                 if len(media_groups[group_id]) > 0:
-
                     for msg in media_groups[group_id]:
                         await bot.copy_message(
                             chat_id=channel_id,
                             from_chat_id=msg.chat.id,
                             message_id=msg.message_id
                         )
-
                     media_groups[group_id] = []
 
             else:
-                # оддий пост
+                await bot.copy_message(
+                    chat_id=channel_id,
+                    from_chat_id=message.chat.id,
+                    message_id=message.message_id
+                )
+
+    # 🔥 2. ВИЛОЯТ БЎЙИЧА (ЯНГИ ҚИСМ)
+    for name, channel_id in regions.items():
+        if name in text:
+
+            if message.media_group_id:
+                group_id = message.media_group_id
+
+                if group_id not in media_groups:
+                    media_groups[group_id] = []
+
+                media_groups[group_id].append(message)
+                await asyncio.sleep(1.5)
+
+                if len(media_groups[group_id]) > 0:
+                    for msg in media_groups[group_id]:
+                        await bot.copy_message(
+                            chat_id=channel_id,
+                            from_chat_id=msg.chat.id,
+                            message_id=msg.message_id
+                        )
+                    media_groups[group_id] = []
+
+            else:
                 await bot.copy_message(
                     chat_id=channel_id,
                     from_chat_id=message.chat.id,
